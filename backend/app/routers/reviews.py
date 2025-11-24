@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from schemas import *
-from core import createSession
+# from schemas import *
+from ..core import createSession
+
+from ..models.review import Review
+from ..schemas.review_schema import ReadReviewBase, createReviewBase
+from typing import List
 
 router = APIRouter(prefix="/reviews")
 

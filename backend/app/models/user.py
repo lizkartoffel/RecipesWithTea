@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Field, Relationship
 from typing import List, Optional
 from datetime import datetime
 
-from models import *
+#from models import *
 
 class User(SQLModel, table=True):
 

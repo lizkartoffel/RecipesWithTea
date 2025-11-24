@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from schemas import *
-from core import createSession
+#from schemas import recipe_schema
+#from core import createSession
+
+from ..models.recipe import Recipe 
+from ..schemas import ReadRecipeBase, CreateRecipeBase, UpdateRecipeBase
+from typing import List
+from ..core.database import createSession
 
 router = APIRouter(prefix="/recipes")
 

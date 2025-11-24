@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
 from sqlmodel import SQLModel
-from models import *
 
 class ReadRecipeBase(SQLModel):
     id: int

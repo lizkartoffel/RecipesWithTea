@@ -1,9 +1,8 @@
 from datetime import datetime
 from typing import List, Optional
 from sqlmodel import SQLModel
-from models import *
 
-class createReviewBase(SQLModel):
+class CreateReviewBase(SQLModel):
     rating: int
     comment: Optional[str]
     recipe_id: int
@@ -24,4 +23,4 @@ class ReadReviewBase(SQLModel):
         orm_mode = True
 
 
-__all__ = ["ReadReviewBase", "createReviewBase"]
+__all__ = ["ReadReviewBase", "CreateReviewBase"]
