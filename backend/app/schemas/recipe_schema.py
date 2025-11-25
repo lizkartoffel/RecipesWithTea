@@ -8,14 +8,14 @@ class ReadRecipeBase(SQLModel):
     id: int
     title: str
     description: str
-    cooking_time: int
+    cook_time: int
     servings: int
     created_at: datetime
     updated_at: datetime
     cuisine_id: Optional[int]
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # class ReadRecipeDetail(ReadRecipeBase):
 #     ingredients: List["ReadRecipeIngredient"] = []
@@ -25,33 +25,35 @@ class ReadRecipeBase(SQLModel):
 #     diets: List["ReadDiet"] = []
 #     allergies: List["ReadAllergy"] = []
 
-    class Config:
-        orm_mode = True
+    # class Config:
+    #     from_attributes = True
+
+
 class CreateRecipeBase(SQLModel):
     title: str
     description: str
-    cooking_time: int
+    cook_time: int
     servings: int
     cuisine_id: Optional[int]
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UpdateRecipeBase(SQLModel):
     title: Optional[str]
     description: Optional[str]
-    cooking_time: Optional[int]
+    cook_time: Optional[int]
     servings: Optional[int]
     cuisine_id: Optional[int]
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-class deleteRecipeBase(SQLModel):
+class DeleteRecipeBase(SQLModel):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
-__all__ = ["ReadRecipeBase", "ReadRecipeDetail", "CreateRecipeBase", "UpdateRecipeBase"]
+__all__ = ["ReadRecipeBase", "CreateRecipeBase", "UpdateRecipeBase", "DeleteRecipeBase"]

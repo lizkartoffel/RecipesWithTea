@@ -13,6 +13,7 @@ class Recipe(SQLModel, table=True):
     servings: Optional[int] = None
     difficulty: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     cuisine_id: int = Field(foreign_key="cuisine.id")
     cuisine: "Cuisine" = Relationship(back_populates="recipes")

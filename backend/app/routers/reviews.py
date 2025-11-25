@@ -4,13 +4,13 @@ from sqlmodel import Session, select
 from ..core import createSession
 
 from ..models.review import Review
-from ..schemas.review_schema import ReadReviewBase, createReviewBase
+from ..schemas.review_schema import ReadReviewBase, CreateReviewBase
 from typing import List
 
 router = APIRouter(prefix="/reviews")
 
 @router.post("/", response_model=ReadReviewBase)  # create a review
-def create_review(review: createReviewBase, session: Session = Depends(createSession)):
+def create_review(review: CreateReviewBase, session: Session = Depends(createSession)):
     new_review = Review.from_orm(review)
     session.add(new_review)
     session.commit()
@@ -45,7 +45,7 @@ def delete_review(review_id: int, session: Session = Depends(createSession)):
 
 
 @router.put("/{review_id}", response_model=ReadReviewBase)  # update review by id
-def update_review(review_id: int, review_data: createReviewBase, session: Session = Depends(createSession)):
+def update_review(review_id: int, review_data: CreateReviewBase, session: Session = Depends(createSession)):
     review = session.get(Review, review_id)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")

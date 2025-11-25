@@ -12,7 +12,7 @@ router = APIRouter(prefix="/recipes")
 
 @router.post("/", response_model=ReadRecipeBase)  # create a recipe
 def create_recipe(recipe: CreateRecipeBase, session: Session = Depends(createSession)):
-    new_recipe = Recipe.from_orm(recipe)
+    new_recipe = Recipe(**recipe.model_dump())
     session.add(new_recipe)
     session.commit()
     session.refresh(new_recipe)

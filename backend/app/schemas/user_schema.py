@@ -30,10 +30,10 @@ class UserPublic(SQLModel):
     bio: Optional[str] = None
     created_at: datetime
 
-class UserWithRecipes(UserPublic):
-    recipes: List["Recipe"] = []
-    favorites: List["Favorite"] = []
-    reviews: List["Review"] = []
+# class UserWithRecipes(UserPublic):
+#     recipes: List["Recipe"] = []
+#     favorites: List["Favorite"] = []
+#     reviews: List["Review"] = []
 
 class UserWithCounts(UserPublic):
     recipe_count: int = 0
@@ -45,17 +45,24 @@ class UserWithDetails(UserWithCounts):
     favorites: List["Favorite"] = []
     reviews: List["Review"] = []
 
-class LoginData(SQLModel):
-    username: str
-    password: str
+# class LoginData(SQLModel):
+#     username: str
+#     password: str
 
-class Token(SQLModel):   
-    access_token: str
-    token_type: str = "bearer"
-    user: UserPublic
+# class Token(SQLModel):   
+#     access_token: str
+#     token_type: str = "bearer"
+#     user: UserPublic
     
-class TokenData(SQLModel):
-    user_id: Optional[int] = None
-    username: Optional[str] = None
+# class TokenData(SQLModel):
+#     user_id: Optional[int] = None
+#     username: Optional[str] = None
+
+
+
+
+
+
 # Relationships vs Foreign Keys
 # Foreign keys are used to enforce referential integrity at the database level.
+

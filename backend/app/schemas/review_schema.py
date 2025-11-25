@@ -11,7 +11,7 @@ class CreateReviewBase(SQLModel):
     user_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ReadReviewBase(SQLModel):
     id: int
@@ -22,7 +22,7 @@ class ReadReviewBase(SQLModel):
     recipe_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 __all__ = ["ReadReviewBase", "CreateReviewBase"]

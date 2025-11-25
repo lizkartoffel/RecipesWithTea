@@ -9,21 +9,22 @@ class ReadFavoriteBase(SQLModel):
     recipe_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class CreateFavoriteBase(SQLModel):
     user_id: int
     recipe_id: int
 
     class Config:
-        orm_mode = True 
+        from_attributes = True
+ 
 
 class UpdateFavoriteBase(SQLModel):
     user_id: int
     recipe_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 __all__ = ["ReadFavoriteBase", "CreateFavoriteBase", "UpdateFavoriteBase"]
