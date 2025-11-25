@@ -59,10 +59,6 @@ class UserWithDetails(UserWithCounts):
 #     username: Optional[str] = None
 
 
-
-
-
-
 # Relationships vs Foreign Keys
 # Foreign keys are used to enforce referential integrity at the database level.
 
