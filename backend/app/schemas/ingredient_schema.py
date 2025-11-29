@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 from sqlmodel import SQLModel
+from pydantic import ConfigDict
 
 class ReadRecipeIngredient(SQLModel):
     id: int
     name: str
-    quantity: Optional[float]
-    unit: Optional[str]
+    quantity: Optional[str] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

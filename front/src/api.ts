@@ -21,7 +21,10 @@ export async function createRecipe(data: any) {
     },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create recipe");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Failed to create recipe");
+  }
   return response.json();
 }
 
@@ -128,7 +131,10 @@ export async function createUser(data: {
     },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create user");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Failed to create user");
+  }
   return response.json();
 }
 
@@ -141,7 +147,10 @@ export async function register(username: string, password: string) {
     },
     body: JSON.stringify({ username, password }),
   });
-  if (!response.ok) throw new Error("Failed to register");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Failed to register");
+  }
   return response.json();
 }
 
@@ -153,6 +162,9 @@ export async function login(username: string, password: string) {
     },
     body: JSON.stringify({ username, password }),
   });
-  if (!response.ok) throw new Error("Invalid credentials");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Invalid credentials");
+  }
   return response.json();
 }

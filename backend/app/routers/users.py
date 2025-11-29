@@ -17,14 +17,36 @@ def get_user(user_id: int, session: Session = Depends(createSession)):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    
+    # Create response with counts
+    return UserWithDetails(
+        id=user.id,
+        username=user.username,
+        display_name=user.display_name,
+        bio=user.bio,
+        created_at=user.created_at,
+        recipe_count=len(user.recipes),
+        favorite_count=len(user.favorites),
+        review_count=len(user.reviews)
+    )
 
 @router.get("/username/{username}", response_model=UserWithDetails)
 def get_user_by_username(username: str, session: Session = Depends(createSession)):
     user = session.exec(select(User).where(User.username == username)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    
+    # Create response with counts
+    return UserWithDetails(
+        id=user.id,
+        username=user.username,
+        display_name=user.display_name,
+        bio=user.bio,
+        created_at=user.created_at,
+        recipe_count=len(user.recipes),
+        favorite_count=len(user.favorites),
+        review_count=len(user.reviews)
+    )
 
 @router.post("/", response_model=ReadUser)
 def create_user(user: CreateUser, session: Session = Depends(createSession)):
