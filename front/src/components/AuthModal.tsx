@@ -6,14 +6,14 @@ import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 
 interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  mode: "login" | "signup";
-  // Updated to use username for login
-  onLogin: (username: string, password: string) => void;
-   // Updated to pass display_name (from 'name'), email, username, and password
-  onSignUp: (displayName: string, email: string, username: string, password: string) => void;
-  onSwitchMode: () => void;
+ isOpen: boolean;
+ onClose: () => void;
+ mode: "login" | "signup";
+ // Login requires username and password
+ onLogin: (username: string, password: string) => void;
+ // SignUp requires display name, email, username, and password
+ onSignUp: (displayName: string, email: string, username: string, password: string) => void;
+ onSwitchMode: () => void;
 }
 
 export function AuthModal({
@@ -24,70 +24,73 @@ export function AuthModal({
  onSignUp,
  onSwitchMode,
 }: AuthModalProps) {
- const [formData, setFormData] = useState({
-  name: "", // This will be the display_name
-    username: "", // NEW: Added for backend AuthRequest
-  email: "",
-  password: "",
-  confirmPassword: "",
- });
+const [formData, setFormData] = useState({
+ username: "", 
+ displayName: "", 
+ email: "",
+ password: "",
+ confirmPassword: "",
+});
 
- const [errors, setErrors] = useState<Record<string, string>>({});
+const [errors, setErrors] = useState<Record<string, string>>({});
 
- const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  const newErrors: Record<string, string> = {};
+const handleSubmit = (e: React.FormEvent) => {
+ e.preventDefault();
+ const newErrors: Record<string, string> = {};
 
-  // Basic validation
-  if (mode === "signup" && !formData.email) newErrors.email = "Email is required";
+ // Validation logic based on mode
+ if (mode === "login") {
+  // For Login, only Username and Password are required
+  if (!formData.username) newErrors.username = "Username is required";
+  if (!formData.password) newErrors.password = "Password is required";
+
+ } else { // mode === "signup"
+  // For Sign Up, all fields are required
+  if (!formData.displayName) newErrors.displayName = "Display Name is required";
+  if (!formData.email) newErrors.email = "Email is required";
+  if (!formData.username) newErrors.username = "Username is required"; // Crucial for backend
   if (!formData.password) newErrors.password = "Password is required";
   
-  if (mode === "signup") {
-   if (!formData.name) newErrors.name = "Full Name is required";
-      if (!formData.username) newErrors.username = "Username is required"; // NEW
-   if (formData.password !== formData.confirmPassword) {
-    newErrors.confirmPassword = "Passwords don't match";
-   }
-  } else {
-        // For login, we use the email field as the username input field
-        if (!formData.email) newErrors.email = "Username is required";
-    }
-
-  setErrors(newErrors);
-
-  if (Object.keys(newErrors).length === 0) {
-   if (mode === "login") {
-    // Login uses the email input field as the username
-    onLogin(formData.email, formData.password);
-   } else {
-    // SignUp uses all fields
-    onSignUp(formData.name, formData.email, formData.username, formData.password);
-   }
-   setFormData({ name: "", username: "", email: "", password: "", confirmPassword: "" }); // Reset form
-   onClose();
+  if (formData.password && formData.password !== formData.confirmPassword) {
+   newErrors.confirmPassword = "Passwords don't match";
   }
- };
+ }
+ 
+ setErrors(newErrors);
 
- const handleInputChange = (field: string, value: string) => {
+ if (Object.keys(newErrors).length === 0) {
+ if (mode === "login") {
+  // Login uses username and password
+  onLogin(formData.username, formData.password);
+ } else {
+  // SignUp: pass displayName, email, username, password
+  onSignUp(formData.displayName, formData.email, formData.username, formData.password);
+ }
+ // Clear form data after successful submission
+ setFormData({ username: "", displayName: "", email: "", password: "", confirmPassword: "" });
+ onClose();
+ }
+};
+
+const handleInputChange = (field: string, value: string) => {
   setFormData(prev => ({ ...prev, [field]: value }));
   if (errors[field]) {
    setErrors(prev => ({ ...prev, [field]: "" }));
   }
- };
+};
     
-  const loginFieldLabel = mode === "login" ? "Username" : "Email Address";
-  const loginFieldPlaceholder = mode === "login" ? "Enter your username" : "Enter your email";
-
+ // Helper for input types/labels based on mode (if you still have the mixed-use input)
+ const isLoginMode = mode === "login";
 
  return (
   <Dialog open={isOpen} onOpenChange={onClose}>
    <DialogContent className="sm:max-w-md">
     <DialogHeader>
      <DialogTitle className="text-2xl font-bold text-[#1a2e0b] text-center">
-      {mode === "login" ? "Welcome Back" : "Join Recipes with Tea"}
+      {isLoginMode ? "Welcome Back" : "Join Recipes with Tea"}
      </DialogTitle>
      <DialogDescription className="text-center text-[#2d5016]">
-      {mode === "login" 
+      {isLoginMode 
        ? "Sign in to your account using your username." 
        : "Create an account to start sharing recipes and connect with fellow food enthusiasts."
       }
@@ -95,61 +98,66 @@ export function AuthModal({
     </DialogHeader>
 
     <form onSubmit={handleSubmit} className="space-y-4">
-     {mode === "signup" && (
+     
+            {/* Display Name Input (Sign Up Only) */}
+     {isLoginMode === false && (
       <div>
-       <Label htmlFor="name" className="text-[#1a2e0b]">
+       <Label htmlFor="displayName" className="text-[#1a2e0b]">
         Full Name (Display Name)
        </Label>
        <Input
-        id="name"
+        id="displayName"
         type="text"
-        value={formData.name}
-        onChange={(e) => handleInputChange("name", e.target.value)}
-        className={`mt-1 ${errors.name ? "border-red-500" : ""}`}
-        placeholder="Your display name (e.g., TeaLoverChef)"
+        value={formData.displayName}
+        onChange={(e) => handleInputChange("displayName", e.target.value)}
+        className={`mt-1 ${errors.displayName ? "border-red-500" : ""}`}
+        placeholder="Your full name"
        />
-       {errors.name && (
-        <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+       {errors.displayName && (
+        <p className="text-red-500 text-sm mt-1">{errors.displayName}</p>
        )}
       </div>
      )}
 
-          {mode === "signup" && (
-      <div>
-       <Label htmlFor="username" className="text-[#1a2e0b]">
-        Username
-       </Label>
-       <Input
-        id="username"
-        type="text"
-        value={formData.username}
-        onChange={(e) => handleInputChange("username", e.target.value)}
-        className={`mt-1 ${errors.username ? "border-red-500" : ""}`}
-        placeholder="A unique username for login"
-       />
-       {errors.username && (
-        <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-       )}
-      </div>
-     )}
-
+          {/* Username Input (Always visible/used for login) */}
      <div>
-      <Label htmlFor="email" className="text-[#1a2e0b]">
-       {loginFieldLabel}
+      <Label htmlFor="username" className="text-[#1a2e0b]">
+       Username
       </Label>
       <Input
-       id="email"
-       type={mode === "login" ? "text" : "email"}
-       value={formData.email}
-       onChange={(e) => handleInputChange("email", e.target.value)}
-       className={`mt-1 ${errors.email ? "border-red-500" : ""}`}
-       placeholder={loginFieldPlaceholder}
+       id="username"
+       type="text"
+       value={formData.username}
+       onChange={(e) => handleInputChange("username", e.target.value)}
+       className={`mt-1 ${errors.username ? "border-red-500" : ""}`}
+       placeholder={isLoginMode ? "Enter your username" : "Choose a unique username"}
       />
-      {errors.email && (
-       <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+      {errors.username && (
+       <p className="text-red-500 text-sm mt-1">{errors.username}</p>
       )}
      </div>
 
+          {/* Email Input (Sign Up Only) */}
+     {isLoginMode === false && (
+      <div>
+       <Label htmlFor="email" className="text-[#1a2e0b]">
+        Email Address
+       </Label>
+       <Input
+        id="email"
+        type="email"
+        value={formData.email}
+        onChange={(e) => handleInputChange("email", e.target.value)}
+        className={`mt-1 ${errors.email ? "border-red-500" : ""}`}
+        placeholder="Enter your email"
+       />
+       {errors.email && (
+        <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+       )}
+      </div>
+     )}
+
+          {/* Password Input (Always visible) */}
      <div>
       <Label htmlFor="password" className="text-[#1a2e0b]">
        Password
@@ -167,7 +175,8 @@ export function AuthModal({
       )}
      </div>
 
-     {mode === "signup" && (
+          {/* Confirm Password (Sign Up Only) */}
+     {isLoginMode === false && (
       <div>
        <Label htmlFor="confirmPassword" className="text-[#1a2e0b]">
         Confirm Password
@@ -190,7 +199,7 @@ export function AuthModal({
       type="submit"
       className="w-full bg-[#7cb342] hover:bg-[#4a7c59] text-white shadow-md hover:shadow-lg transition-all duration-300"
      >
-      {mode === "login" ? "Sign In" : "Create Account"}
+      {isLoginMode ? "Sign In" : "Create Account"}
      </Button>
     </form>
 
@@ -198,14 +207,14 @@ export function AuthModal({
 
     <div className="text-center">
      <p className="text-sm text-gray-600">
-      {mode === "login" ? "Don't have an account?" : "Already have an account?"}
+      {isLoginMode ? "Don't have an account?" : "Already have an account?"}
      </p>
      <Button
       variant="ghost"
       onClick={onSwitchMode}
       className="text-[#4a7c59] hover:text-[#2d5016] hover:bg-[#e8f5e8] transition-colors duration-200"
      >
-      {mode === "login" ? "Sign up here" : "Sign in here"}
+      {isLoginMode ? "Sign up here" : "Sign in here"}
      </Button>
     </div>
    </DialogContent>

@@ -1080,40 +1080,39 @@ export default function App() {
     return matchesSearch && matchesFilters && matchesTab;
   });
 
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      const response = await api.login(email, password);
-      setIsLoggedIn(true);
-      setCurrentUser(email.split('@')[0]);
-      setCurrentUserId(1); // You'll need to get this from backend response
-      setIsAuthModalOpen(false);
-    } catch (err) {
-      console.error("Login failed:", err);
-      alert("Login failed. Please check your credentials.");
-    }
-  };
+const handleLogin = async (username: string, password: string) => {
+  try {
+    const response = await api.login(username, password);
+    setIsLoggedIn(true);
+    setCurrentUser(response.display_name || response.username);
+    setCurrentUserId(response.user_id);
+    setIsAuthModalOpen(false);
+  } catch (err) {
+    console.error("Login failed:", err);
+    alert("Login failed. Please check your credentials.");
+  }
+};
 
-  const handleSignUp = async (name: string, email: string, password: string) => {
-    try {
-      const newUser = await api.createUser({
-        username: name,
-        display_name: name,
-        email: email,
-        password: password,
-        bio: ""
-      });
-      
-      // Auto-login after signup
-      setIsLoggedIn(true);
-      setCurrentUser(name);
-      setCurrentUserId(newUser.id);
-      setIsAuthModalOpen(false);
-    } catch (err) {
-      console.error("Signup failed:", err);
-      alert("Signup failed. Username or email may already exist.");
-    }
-  };
-
+const handleSignUp = async (displayName: string, email: string, username: string, password: string) => {
+  try {
+    const newUser = await api.createUser({
+      username: username,
+      display_name: displayName,
+      email: email,
+      password: password,
+      bio: ""
+    });
+    
+    // Auto-login after signup
+    setIsLoggedIn(true);
+    setCurrentUser(newUser.display_name);
+    setCurrentUserId(newUser.id);
+    setIsAuthModalOpen(false);
+  } catch (err) {
+    console.error("Signup failed:", err);
+    alert("Signup failed. Username or email may already exist.");
+  }
+};
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentUser(null);
@@ -1638,3 +1637,4 @@ export default function App() {
     </div>
   );
 }
+
