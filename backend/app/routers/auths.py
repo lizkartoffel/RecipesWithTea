@@ -1,12 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from passlib.context import CryptContext
+# The CryptContext setup is no longer needed if not hashing
+# from passlib.context import CryptContext 
 from sqlmodel import Session, select
 from pydantic import BaseModel
 from app.models.user import User
 from app.core.database import engine
 
 router = APIRouter(prefix="/auth")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Removed: pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthRequest(BaseModel):
     username: str
@@ -14,37 +15,40 @@ class AuthRequest(BaseModel):
 
 @router.post("/register")
 def register(auth_data: AuthRequest):
-    """Register a new user with username and password"""
+    """Register a new user with username and password, storing password in plain text."""
     with Session(engine) as session:
         # Check if username already exists
         existing_user = session.exec(select(User).where(User.username == auth_data.username)).first()
         if existing_user:
             raise HTTPException(status_code=400, detail="Username already registered")
         
-        # Hash password and create user
-        hashed_pw = pwd_context.hash(auth_data.password)
+        # --- CHANGE 1: Store the plain text password directly ---
         new_user = User(
             username=auth_data.username,
-            display_name=auth_data.username,  # Default display name to username
-            email=f"{auth_data.username}@example.com",  # Default email
-            password_hash=hashed_pw
+            display_name=auth_data.username,
+            email=f"{auth_data.username}@example.com",
+            # Store the raw, unhashed password
+            password_hash=auth_data.password 
         )
         session.add(new_user)
         session.commit()
         session.refresh(new_user)
         
         return {
-            "message": "User registered successfully",
+            "message": "User registered successfully (INSECURE)",
             "user_id": new_user.id,
             "username": new_user.username
         }
 
 @router.post("/login")
 def login(auth_data: AuthRequest):
-    """Login with username and password"""
+    """Login by comparing plain text passwords."""
     with Session(engine) as session:
         user = session.exec(select(User).where(User.username == auth_data.username)).first()
-        if not user or not pwd_context.verify(auth_data.password, user.password_hash):
+        
+        # --- CHANGE 2: Compare the plain text password directly ---
+        # The password_hash field now contains the raw password string
+        if not user or user.password_hash != auth_data.password: 
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
         return {
@@ -53,6 +57,61 @@ def login(auth_data: AuthRequest):
             "username": user.username,
             "display_name": user.display_name
         }
+# from fastapi import APIRouter, HTTPException
+# from passlib.context import CryptContext
+# from sqlmodel import Session, select
+# from pydantic import BaseModel
+# from app.models.user import User
+# from app.core.database import engine
+
+# router = APIRouter(prefix="/auth")
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# class AuthRequest(BaseModel):
+#     username: str
+#     password: str
+
+# @router.post("/register")
+# def register(auth_data: AuthRequest):
+#     """Register a new user with username and password"""
+#     with Session(engine) as session:
+#         # Check if username already exists
+#         existing_user = session.exec(select(User).where(User.username == auth_data.username)).first()
+#         if existing_user:
+#             raise HTTPException(status_code=400, detail="Username already registered")
+        
+#         # Hash password and create user
+#         hashed_pw = pwd_context.hash(auth_data.password)
+#         new_user = User(
+#             username=auth_data.username,
+#             display_name=auth_data.username,  # Default display name to username
+#             email=f"{auth_data.username}@example.com",  # Default email
+#             password_hash=hashed_pw
+#         )
+#         session.add(new_user)
+#         session.commit()
+#         session.refresh(new_user)
+        
+#         return {
+#             "message": "User registered successfully",
+#             "user_id": new_user.id,
+#             "username": new_user.username
+#         }
+
+# @router.post("/login")
+# def login(auth_data: AuthRequest):
+#     """Login with username and password"""
+#     with Session(engine) as session:
+#         user = session.exec(select(User).where(User.username == auth_data.username)).first()
+#         if not user or not pwd_context.verify(auth_data.password, user.password_hash):
+#             raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+#         return {
+#             "token": "fake-jwt-for-now",
+#             "user_id": user.id,
+#             "username": user.username,
+#             "display_name": user.display_name
+#         }
     
 
 
